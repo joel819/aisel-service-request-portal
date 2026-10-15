@@ -1,8 +1,13 @@
-from fastapi import FastAPI
+import logging
+
+from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from app.config import get_settings
-from app.routers import auth
+from app.routers import auth, requests
+
+logger = logging.getLogger("app")
 
 
 def create_app() -> FastAPI:
@@ -13,12 +18,19 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
-
     app.include_router(auth.router)
+    app.include_router(requests.router)
 
     @app.get("/api/health", tags=["health"])
     def health() -> dict[str, str]:
         return {"status": "ok"}
+
+    @app.exception_handler(Exception)
+    async def unhandled_error(request: Request, exc: Exception) -> JSONResponse:
+        logger.exception("Unhandled error on %s %s", request.method, request.url.path)
+        return JSONResponse(
+            {"detail": "Internal server error"}, status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 
     return app
 
