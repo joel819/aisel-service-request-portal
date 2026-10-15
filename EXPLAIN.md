@@ -5,6 +5,7 @@
 ### Root
 - `.env.example` - template listing every environment variable with safe placeholder values.
 - `.gitignore` - keeps `.env`, virtualenvs, `node_modules` and build output out of git.
+- `.github/workflows/ci.yml` - GitHub Actions job that builds the stack and runs `pytest` in the api container.
 - `docker-compose.yml` - defines the `db`, `api` and `web` services, the database healthcheck and the `pgdata` volume.
 - `README.md` - setup, architecture, API table, limitations and assumptions for the graders.
 - `EXPLAIN.md` - this file.
@@ -18,22 +19,26 @@
 - `alembic/env.py` - tells Alembic which metadata and database URL to use; a URL set on the config (as the tests do) wins over the app setting.
 - `alembic/script.py.mako` - template Alembic uses when generating new migrations.
 - `alembic/versions/0001_initial.py` - creates the three enum types, `users`, `service_requests`, the indexes and CHECK constraints.
+- `alembic/versions/0002_audit_and_roles.py` - adds `users.role` and the `audit_logs` table.
 - `app/__init__.py`, `app/routers/__init__.py`, `app/services/__init__.py`, `scripts/__init__.py`, `tests/__init__.py` - empty package markers.
 - `app/main.py` - builds the FastAPI app: CORS, routers, `/api/health` and the catch-all 500 handler returning `{"detail": ...}`.
 - `app/config.py` - `Settings` loaded from environment variables via pydantic-settings, cached by `get_settings()`.
 - `app/database.py` - SQLAlchemy engine, `SessionLocal`, declarative `Base` and the `get_db` dependency.
-- `app/models.py` - `User` and `ServiceRequest` ORM models plus the `ServiceType`, `Priority` and `Status` enums.
+- `app/models.py` - `User`, `ServiceRequest` and `AuditLog` ORM models plus the `ServiceType`, `Priority`, `Status`, `Role` and `AuditAction` enums.
 - `app/schemas.py` - Pydantic models for login, user output and service request create/update/output/page.
 - `app/security.py` - bcrypt hash/verify and JWT create/decode.
-- `app/deps.py` - `get_current_user`, which turns a Bearer token into a `User` or raises 401.
+- `app/deps.py` - `get_current_user` (Bearer token to `User`, else 401) and `require_admin` (403 for non-admins).
 - `app/routers/auth.py` - `POST /api/auth/login` and `GET /api/auth/me`.
 - `app/routers/requests.py` - the five `/api/requests` endpoints; only HTTP concerns.
 - `app/services/auth.py` - `authenticate()`: look up the user and check the password.
-- `app/services/requests.py` - list/filter/paginate, get, create, update and delete queries.
-- `scripts/seed_user.py` - creates the first user from `SEED_USER_EMAIL`/`SEED_USER_PASSWORD` if absent.
+- `app/services/requests.py` - list/filter/paginate, get, create, update and delete queries; writes audit rows.
+- `app/services/audit.py` - `record()` stages an audit-log row in the caller's transaction.
+- `app/services/rate_limit.py` - in-memory sliding-window limiter used by login.
+- `scripts/seed_user.py` - creates the first user (as admin) from `SEED_USER_EMAIL`/`SEED_USER_PASSWORD`, or promotes it if it exists without the role.
 - `tests/conftest.py` - creates the test database, runs migrations, and provides `db`, `user`, `client` and `auth_headers` fixtures.
-- `tests/test_auth.py` - login, 401 and token tests.
-- `tests/test_requests.py` - CRUD workflow, validation, 404, delete and filter tests.
+- `tests/test_auth.py` - login, 401, token and rate-limit tests.
+- `tests/test_requests.py` - CRUD workflow, validation, 404, delete, filter and admin-only-delete tests.
+- `tests/test_audit.py` - checks create, update and delete each write an audit row with the user.
 
 ### frontend/
 - `Dockerfile` - builds the Next.js app with `NEXT_PUBLIC_API_URL` baked in and starts it.
@@ -86,4 +91,5 @@
 7. **Why PATCH, not PUT?** The UI changes single fields (quick status/priority), so a partial update fits. `ServiceRequestUpdate` uses `exclude_unset` so only sent fields change, and explicit nulls are rejected.
 8. **Why are tokens in localStorage?** It is simple and works across the separate frontend and API origins. The trade-off is XSS exposure; httpOnly cookies would be stronger but need CSRF protection. It is noted in the README.
 9. **Why enums and CHECK constraints in the database as well as Pydantic?** Pydantic protects the API, but the database is the last line of defence against bad data from scripts, migrations or future code paths.
-10. **What would you improve next?** Roles so only admins can delete, an audit log for changes, rate limiting on login, refresh tokens or cookie auth, and soft delete. None are implemented, which is why they are listed under known limitations.
+10. **What would you improve next?** Refresh tokens or cookie auth, soft delete, a read endpoint and field-level detail for the audit log, role management, and a shared (Redis) rate limiter. The current limiter is in memory per process, which is listed under known limitations.
+11. **How does the rate limit and RBAC work?** `services/rate_limit.py` keeps recent attempt times per client IP and the login router returns 429 after 10 in a minute. `deps.require_admin` checks `user.role` and the delete route depends on it, so non-admins get 403; the frontend also hides the delete button, but the API is what enforces it.

@@ -3,7 +3,7 @@ from typing import Annotated
 
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints, model_validator
 
-from app.models import Priority, ServiceType, Status
+from app.models import Priority, Role, ServiceType, Status
 
 
 class LoginRequest(BaseModel):
@@ -23,6 +23,7 @@ class UserOut(BaseModel):
     id: int
     email: str
     full_name: str | None
+    role: Role
     is_active: bool
 
 

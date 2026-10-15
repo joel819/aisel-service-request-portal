@@ -25,6 +25,13 @@ export default function EditRequestPage() {
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    api<{ role: string }>("/api/auth/me")
+      .then((me) => setIsAdmin(me.role === "admin"))
+      .catch(() => setIsAdmin(false));
+  }, []);
 
   const load = useCallback(async () => {
     setError(null);
@@ -126,23 +133,25 @@ export default function EditRequestPage() {
         />
       </div>
 
-      <div className="mt-6 rounded-lg border border-red-200 bg-white p-4">
-        {confirmingDelete ? (
-          <div className="flex flex-wrap items-center gap-3">
-            <span className="text-sm">Delete {request.reference} permanently?</span>
-            <button className="btn-danger" onClick={remove}>
-              Yes, delete
+      {isAdmin && (
+        <div className="mt-6 rounded-lg border border-red-200 bg-white p-4">
+          {confirmingDelete ? (
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="text-sm">Delete {request.reference} permanently?</span>
+              <button className="btn-danger" onClick={remove}>
+                Yes, delete
+              </button>
+              <button className="btn-secondary" onClick={() => setConfirmingDelete(false)}>
+                Cancel
+              </button>
+            </div>
+          ) : (
+            <button className="btn-danger" onClick={() => setConfirmingDelete(true)}>
+              Delete request
             </button>
-            <button className="btn-secondary" onClick={() => setConfirmingDelete(false)}>
-              Cancel
-            </button>
-          </div>
-        ) : (
-          <button className="btn-danger" onClick={() => setConfirmingDelete(true)}>
-            Delete request
-          </button>
-        )}
-      </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

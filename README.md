@@ -109,13 +109,18 @@ test, so tests do not depend on each other.
 | Method | Path | Auth | Description | Success |
 | --- | --- | --- | --- | --- |
 | GET | `/api/health` | no | Liveness check | 200 |
-| POST | `/api/auth/login` | no | Exchange email and password for a JWT | 200 |
+| POST | `/api/auth/login` | no | Exchange email and password for a JWT (10 attempts per minute per IP, then 429) | 200 / 401 / 429 |
 | GET | `/api/auth/me` | yes | Current user | 200 |
 | GET | `/api/requests` | yes | List with `q`, `status`, `priority`, `service_type`, `page`, `page_size` (max 100) | 200 |
 | POST | `/api/requests` | yes | Create a request | 201 |
 | GET | `/api/requests/{id}` | yes | Get one request | 200 / 404 |
 | PATCH | `/api/requests/{id}` | yes | Partial update | 200 / 404 / 422 |
-| DELETE | `/api/requests/{id}` | yes | Hard delete | 204 / 404 |
+| DELETE | `/api/requests/{id}` | admin | Hard delete | 204 / 403 / 404 |
+
+Extras: every create, update and delete writes a row to `audit_logs` (action, request id and
+reference, user, timestamp) in the same transaction as the change. The table is not exposed through
+the API; query it in the database. Users have a role (`admin` or `user`); only admins can delete. The
+seed user is an admin. A GitHub Actions workflow (`.github/workflows/ci.yml`) runs the test suite.
 
 Errors use `{"detail": "..."}`; validation errors keep FastAPI's 422 format. Missing, invalid or
 expired tokens return 401.
@@ -129,10 +134,11 @@ next step if recoverability matters.
 - The JWT is stored in `localStorage`, so any XSS bug on the page could read it. httpOnly, SameSite
   cookies would be stronger (at the cost of CSRF handling and a same-site API setup).
 - No refresh tokens: the user is sent back to login when the token expires.
-- No rate limiting or account lockout on login.
-- No roles: every authenticated user can create, edit and delete any request.
+- The login rate limit is in memory and per API process (keyed by client IP, which is the proxy's IP
+  behind a reverse proxy); a shared store such as Redis would be needed with several workers.
+- Only two roles; there is no endpoint to change a user's role, and the audit log has no read endpoint.
 - No user management UI; additional users need the seed script or direct database access.
-- Hard delete only; there is no audit history.
+- Hard delete only; the audit log keeps who deleted what, but the data itself is gone.
 - `NEXT_PUBLIC_API_URL` is fixed at frontend build time, so changing it needs a rebuild.
 - Search uses `ILIKE` with a leading wildcard, which is fine at this scale but will not use an index.
 
@@ -149,6 +155,7 @@ next step if recoverability matters.
 - Ordering of the list is newest first (`created_at`, then `id`).
 - Passwords are hashed with bcrypt's default cost; a dummy hash is checked for unknown emails so both
   failures take similar time.
+- The audit log records the action, not the changed field values.
 - Only the Compose workflow is documented; running the API or frontend outside Docker is not covered.
 
 ## Time spent

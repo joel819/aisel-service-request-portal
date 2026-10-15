@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.deps import get_current_user
+from app.deps import get_current_user, require_admin
 from app.models import Priority, ServiceRequest, ServiceType, Status, User
 from app.schemas import (
     ServiceRequestCreate,
@@ -63,13 +63,20 @@ def read_request(request_id: int, db: Session = Depends(get_db)) -> ServiceReque
 
 @router.patch("/{request_id}", response_model=ServiceRequestOut)
 def update_request(
-    request_id: int, payload: ServiceRequestUpdate, db: Session = Depends(get_db)
+    request_id: int,
+    payload: ServiceRequestUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ) -> ServiceRequest:
     request = _get_or_404(db, request_id)
-    return request_service.update_request(db, request, payload)
+    return request_service.update_request(db, request, payload, current_user.id)
 
 
 @router.delete("/{request_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_request(request_id: int, db: Session = Depends(get_db)) -> Response:
-    request_service.delete_request(db, _get_or_404(db, request_id))
+def delete_request(
+    request_id: int,
+    db: Session = Depends(get_db),
+    admin: User = Depends(require_admin),
+) -> Response:
+    request_service.delete_request(db, _get_or_404(db, request_id), admin.id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)

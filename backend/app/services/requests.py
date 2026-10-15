@@ -3,8 +3,9 @@ from dataclasses import dataclass
 from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
-from app.models import Priority, ServiceRequest, ServiceType, Status
+from app.models import AuditAction, Priority, ServiceRequest, ServiceType, Status
 from app.schemas import ServiceRequestCreate, ServiceRequestUpdate
+from app.services import audit
 
 
 @dataclass(frozen=True)
@@ -58,21 +59,25 @@ def get_request(db: Session, request_id: int) -> ServiceRequest | None:
 def create_request(db: Session, data: ServiceRequestCreate, user_id: int) -> ServiceRequest:
     request = ServiceRequest(**data.model_dump(), created_by_id=user_id)
     db.add(request)
-    db.commit()
+    db.flush()
     db.refresh(request)
+    audit.record(db, AuditAction.create, request, user_id)
+    db.commit()
     return request
 
 
 def update_request(
-    db: Session, request: ServiceRequest, data: ServiceRequestUpdate
+    db: Session, request: ServiceRequest, data: ServiceRequestUpdate, user_id: int
 ) -> ServiceRequest:
     for field, value in data.model_dump(exclude_unset=True).items():
         setattr(request, field, value)
+    audit.record(db, AuditAction.update, request, user_id)
     db.commit()
     db.refresh(request)
     return request
 
 
-def delete_request(db: Session, request: ServiceRequest) -> None:
+def delete_request(db: Session, request: ServiceRequest, user_id: int) -> None:
+    audit.record(db, AuditAction.delete, request, user_id)
     db.delete(request)
     db.commit()

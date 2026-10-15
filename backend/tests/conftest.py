@@ -11,7 +11,8 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from app.database import Base, get_db
 from app.main import app
-from app.models import User
+from app.models import Role, User
+from app.services.rate_limit import login_limiter
 from app.security import create_access_token, hash_password
 
 TEST_EMAIL = "tester@example.com"
@@ -58,12 +59,33 @@ def db(engine: Engine) -> Iterator[Session]:
             conn.execute(table.delete())
 
 
+@pytest.fixture(autouse=True)
+def reset_login_limiter() -> None:
+    login_limiter.reset()
+
+
 @pytest.fixture
 def user(db: Session) -> User:
-    seeded = User(email=TEST_EMAIL, hashed_password=hash_password(TEST_PASSWORD), full_name="Test")
+    """The seeded test user; an admin, like the real seed user."""
+    seeded = User(
+        email=TEST_EMAIL,
+        hashed_password=hash_password(TEST_PASSWORD),
+        full_name="Test",
+        role=Role.admin,
+    )
     db.add(seeded)
     db.commit()
     return seeded
+
+
+@pytest.fixture
+def member_headers(db: Session) -> dict[str, str]:
+    member = User(
+        email="member@example.com", hashed_password=hash_password(TEST_PASSWORD), role=Role.user
+    )
+    db.add(member)
+    db.commit()
+    return {"Authorization": f"Bearer {create_access_token(member.id)}"}
 
 
 @pytest.fixture

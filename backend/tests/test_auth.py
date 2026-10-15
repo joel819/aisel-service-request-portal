@@ -60,3 +60,13 @@ def test_me_returns_current_user(client: TestClient, auth_headers: dict[str, str
     assert response.status_code == 200
     assert response.json()["email"] == TEST_EMAIL
     assert "hashed_password" not in response.json()
+
+
+def test_login_is_rate_limited(client: TestClient) -> None:
+    for _ in range(10):
+        client.post("/api/auth/login", json={"email": TEST_EMAIL, "password": "wrong"})
+
+    response = client.post("/api/auth/login", json={"email": TEST_EMAIL, "password": TEST_PASSWORD})
+
+    assert response.status_code == 429
+    assert "Retry-After" in response.headers

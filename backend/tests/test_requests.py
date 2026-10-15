@@ -119,3 +119,24 @@ def test_list_search_treats_wildcards_literally(client: TestClient, auth_headers
     response = client.get("/api/requests", params={"q": "%"}, headers=auth_headers)
 
     assert response.json()["total"] == 0
+
+
+def test_non_admin_cannot_delete(
+    client: TestClient, auth_headers: Headers, member_headers: Headers
+) -> None:
+    created = _create(client, auth_headers)
+
+    denied = client.delete(f"/api/requests/{created['id']}", headers=member_headers)
+
+    assert denied.status_code == 403
+    assert client.get(f"/api/requests/{created['id']}", headers=member_headers).status_code == 200
+
+
+def test_non_admin_can_create_and_update(client: TestClient, member_headers: Headers) -> None:
+    created = _create(client, member_headers)
+
+    response = client.patch(
+        f"/api/requests/{created['id']}", json={"status": "in_review"}, headers=member_headers
+    )
+
+    assert response.status_code == 200

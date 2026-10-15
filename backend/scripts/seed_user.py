@@ -5,7 +5,7 @@ import sys
 from sqlalchemy import select
 
 from app.database import SessionLocal
-from app.models import User
+from app.models import Role, User
 from app.security import hash_password
 
 
@@ -17,10 +17,23 @@ def main() -> int:
         return 1
 
     with SessionLocal() as db:
-        if db.scalar(select(User).where(User.email == email)) is not None:
+        existing = db.scalar(select(User).where(User.email == email))
+        if existing is not None and existing.role == Role.admin:
             print("Seed user already exists; nothing to do")
             return 0
-        db.add(User(email=email, hashed_password=hash_password(password), full_name="Seed User"))
+        if existing is not None:
+            existing.role = Role.admin
+            db.commit()
+            print("Seed user promoted to admin")
+            return 0
+        db.add(
+            User(
+                email=email,
+                hashed_password=hash_password(password),
+                full_name="Seed User",
+                role=Role.admin,
+            )
+        )
         db.commit()
     print("Seed user created")
     return 0

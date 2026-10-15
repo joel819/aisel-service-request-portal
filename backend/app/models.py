@@ -32,6 +32,17 @@ class Priority(str, enum.Enum):
     critical = "critical"
 
 
+class Role(str, enum.Enum):
+    admin = "admin"
+    user = "user"
+
+
+class AuditAction(str, enum.Enum):
+    create = "create"
+    update = "update"
+    delete = "delete"
+
+
 class Status(str, enum.Enum):
     new = "new"
     in_review = "in_review"
@@ -51,6 +62,9 @@ class User(Base):
     email: Mapped[str] = mapped_column(String(320), unique=True)
     hashed_password: Mapped[str] = mapped_column(String(255))
     full_name: Mapped[str | None] = mapped_column(String(200))
+    role: Mapped[Role] = mapped_column(
+        _pg_enum(Role, "user_role"), default=Role.user, server_default=Role.user.value
+    )
     is_active: Mapped[bool] = mapped_column(default=True, server_default="true")
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
@@ -94,4 +108,19 @@ class ServiceRequest(Base):
     )
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+
+class AuditLog(Base):
+    """Append-only record of changes. request_id has no FK because requests are hard-deleted."""
+
+    __tablename__ = "audit_logs"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    action: Mapped[AuditAction] = mapped_column(_pg_enum(AuditAction, "audit_action"))
+    request_id: Mapped[int]
+    request_reference: Mapped[str] = mapped_column(String(20))
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
     )

@@ -3,7 +3,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.models import User
+from app.models import Role, User
 from app.security import decode_access_token
 
 bearer_scheme = HTTPBearer(auto_error=False)
@@ -28,3 +28,9 @@ def get_current_user(
     if user is None or not user.is_active:
         raise _unauthorized("Invalid or expired token")
     return user
+
+
+def require_admin(current_user: User = Depends(get_current_user)) -> User:
+    if current_user.role != Role.admin:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Admin role required")
+    return current_user
