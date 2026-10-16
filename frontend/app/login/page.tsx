@@ -3,6 +3,7 @@
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 
+import { BrandMark } from "@/components/Header";
 import { api, setToken } from "@/lib/api";
 
 interface LoginResponse {
@@ -36,8 +37,12 @@ export default function LoginPage() {
 
   return (
     <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center px-4">
-      <h1 className="mb-6 text-2xl font-semibold">Sign in</h1>
-      <form onSubmit={handleSubmit} className="space-y-4 rounded-lg bg-white p-6 shadow-sm">
+      <div className="mb-6 flex flex-col items-center text-center">
+        <BrandMark />
+        <h1 className="mt-4 text-2xl font-semibold">Sign in</h1>
+        <p className="mt-1 text-sm text-slate-500">Manage client service requests</p>
+      </div>
+      <form onSubmit={handleSubmit} className="card space-y-4 p-6">
         <label className="block">
           <span className="mb-1 block text-sm font-medium text-slate-700">Email</span>
           <input

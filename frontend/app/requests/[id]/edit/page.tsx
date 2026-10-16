@@ -88,7 +88,7 @@ export default function EditRequestPage() {
         <StatusBadge status={request.status} />
       </div>
 
-      <div className="mb-4 grid grid-cols-1 gap-3 rounded-lg border border-slate-200 bg-white p-4 sm:grid-cols-2">
+      <div className="mb-4 grid grid-cols-1 gap-3 card p-4 sm:grid-cols-2">
         <label className="block text-sm">
           <span className="mb-1 block font-medium text-slate-700">Status</span>
           <select
@@ -125,7 +125,7 @@ export default function EditRequestPage() {
         </p>
       )}
 
-      <div className="rounded-lg border border-slate-200 bg-white p-6">
+      <div className="card p-6">
         <RequestForm
           initial={initial}
           submitLabel="Save changes"
@@ -134,7 +134,7 @@ export default function EditRequestPage() {
       </div>
 
       {isAdmin && (
-        <div className="mt-6 rounded-lg border border-red-200 bg-white p-4">
+        <div className="mt-6 rounded-xl border border-red-200 bg-white p-4">
           {confirmingDelete ? (
             <div className="flex flex-wrap items-center gap-3">
               <span className="text-sm">Delete {request.reference} permanently?</span>

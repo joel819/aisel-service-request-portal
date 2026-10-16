@@ -19,7 +19,7 @@ export function ErrorState({ message, onRetry }: { message: string; onRetry?: ()
 
 export function EmptyState() {
   return (
-    <div className="rounded-lg border border-dashed border-slate-300 bg-white py-12 text-center">
+    <div className="rounded-xl border border-dashed border-slate-300 bg-white py-16 text-center">
       <p className="text-slate-600">No requests yet</p>
       <Link href="/requests/new" className="btn-primary mt-4">
         Create request

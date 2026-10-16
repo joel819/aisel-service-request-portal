@@ -74,8 +74,11 @@ export default function RequestsPage() {
 
   return (
     <div>
-      <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Service requests</h1>
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold">Service requests</h1>
+          <p className="text-sm text-slate-500">Track and update client work in one place</p>
+        </div>
         <Link href="/requests/new" className="btn-primary">
           New request
         </Link>
@@ -185,9 +188,9 @@ function FilterSelect({
 
 function RequestTable({ items }: { items: ServiceRequest[] }) {
   return (
-    <div className="hidden overflow-hidden rounded-lg border border-slate-200 bg-white md:block">
+    <div className="card hidden overflow-hidden md:block">
       <table className="w-full text-left text-sm">
-        <thead className="bg-slate-50 text-slate-600">
+        <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
           <tr>
             <th className="px-4 py-3 font-medium">Reference</th>
             <th className="px-4 py-3 font-medium">Client</th>
@@ -199,9 +202,9 @@ function RequestTable({ items }: { items: ServiceRequest[] }) {
         </thead>
         <tbody className="divide-y divide-slate-100">
           {items.map((r) => (
-            <tr key={r.id} className="hover:bg-slate-50">
+            <tr key={r.id} className="transition hover:bg-indigo-50/40">
               <td className="px-4 py-3">
-                <Link href={`/requests/${r.id}/edit`} className="font-medium text-blue-600">
+                <Link href={`/requests/${r.id}/edit`} className="font-medium text-indigo-600 hover:underline">
                   {r.reference}
                 </Link>
               </td>
@@ -229,10 +232,10 @@ function RequestCards({ items }: { items: ServiceRequest[] }) {
         <li key={r.id}>
           <Link
             href={`/requests/${r.id}/edit`}
-            className="block rounded-lg border border-slate-200 bg-white p-4"
+            className="card block p-4 transition hover:border-indigo-300"
           >
             <div className="flex items-center justify-between">
-              <span className="font-medium text-blue-600">{r.reference}</span>
+              <span className="font-medium text-indigo-600">{r.reference}</span>
               <span className="text-xs text-slate-500">{formatDate(r.updated_at)}</span>
             </div>
             <p className="mt-1 font-medium">{r.client_name}</p>

@@ -21,7 +21,7 @@ export default function NewRequestPage() {
         &larr; Back to requests
       </Link>
       <h1 className="mb-4 mt-2 text-xl font-semibold">New service request</h1>
-      <div className="rounded-lg border border-slate-200 bg-white p-6">
+      <div className="card p-6">
         <RequestForm showPriority submitLabel="Create request" onSubmit={create} />
       </div>
     </div>
