@@ -15,6 +15,9 @@ def main() -> int:
     if not email or not password:
         print("SEED_USER_EMAIL and SEED_USER_PASSWORD must be set", file=sys.stderr)
         return 1
+    if password.lower().startswith("change-me"):
+        print("SEED_USER_PASSWORD is still the .env.example placeholder; choose a real one", file=sys.stderr)
+        return 1
 
     with SessionLocal() as db:
         existing = db.scalar(select(User).where(User.email == email))

@@ -1,9 +1,11 @@
 from datetime import datetime, timedelta, timezone
 
 import jwt
+import pytest
 from fastapi.testclient import TestClient
+from pydantic import ValidationError
 
-from app.config import get_settings
+from app.config import Settings, get_settings
 from app.models import User
 from tests.conftest import TEST_EMAIL, TEST_PASSWORD
 
@@ -70,3 +72,8 @@ def test_login_is_rate_limited(client: TestClient) -> None:
 
     assert response.status_code == 429
     assert "Retry-After" in response.headers
+
+
+def test_placeholder_jwt_secret_is_rejected() -> None:
+    with pytest.raises(ValidationError):
+        Settings(database_url="postgresql+psycopg://x", jwt_secret="change-me-to-a-long-random-string")

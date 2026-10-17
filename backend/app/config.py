@@ -1,6 +1,6 @@
 from functools import lru_cache
 
-from pydantic import Field
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings
 
 
@@ -9,6 +9,13 @@ class Settings(BaseSettings):
     jwt_secret: str = Field(min_length=16)
     access_token_expire_minutes: int = 60
     cors_origins: str = "http://localhost:3000"
+
+    @field_validator("jwt_secret")
+    @classmethod
+    def reject_placeholder_secret(cls, value: str) -> str:
+        if value.lower().startswith("change-me"):
+            raise ValueError("JWT_SECRET is still the .env.example placeholder; generate a real one")
+        return value
 
     @property
     def cors_origin_list(self) -> list[str]:

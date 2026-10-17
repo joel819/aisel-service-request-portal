@@ -47,6 +47,9 @@ docker compose up -d --build
 Then open <http://localhost:3000> and sign in with `SEED_USER_EMAIL` / `SEED_USER_PASSWORD` from your
 `.env`. Swagger docs are at <http://localhost:8000/docs>.
 
+The app refuses to start while `JWT_SECRET` or `SEED_USER_PASSWORD` still hold the `change-me...`
+placeholders from `.env.example`.
+
 On start the `api` container waits for the database to be healthy, runs `alembic upgrade head`,
 runs `scripts/seed_user.py` (does nothing if the user already exists) and starts uvicorn.
 
@@ -131,6 +134,11 @@ next step if recoverability matters.
 
 ## Known limitations
 
+- The frontend uses Next.js 14.2.35, which `npm audit` flags; the only fix is a major upgrade to
+  Next 16, which I did not attempt. Build-time tooling (Tailwind/PostCSS) also has advisories but
+  does not run in production. Backend dependencies were audited with `pip-audit` and are clean.
+- The containers run as non-root users, but `/docs` (Swagger) is open and the database uses a
+  single superuser account; both would need tightening in production.
 - The JWT is stored in `localStorage`, so any XSS bug on the page could read it. httpOnly, SameSite
   cookies would be stronger (at the cost of CSRF handling and a same-site API setup).
 - No refresh tokens: the user is sent back to login when the token expires.
