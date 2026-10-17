@@ -160,4 +160,4 @@ next step if recoverability matters.
 
 ## Time spent
 
-Approximate time spent: to be filled in by Joel
+Approximate time spent: 12 hours
