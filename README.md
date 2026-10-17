@@ -168,4 +168,4 @@ next step if recoverability matters.
 
 ## Time spent
 
-Approximate time spent: 12 hours
+Approximate time spent: 12 hours. The core brief took roughly the 6-hour budget; the rest went into extras (audit log, roles, rate limiting, CI, container hardening) and into learning parts of the stack I hadn't used together before.
