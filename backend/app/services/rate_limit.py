@@ -25,3 +25,5 @@ class SlidingWindowLimiter:
 
 
 login_limiter = SlidingWindowLimiter(max_attempts=10, window_seconds=60)
+
+assistant_limiter = SlidingWindowLimiter(max_attempts=20, window_seconds=60)

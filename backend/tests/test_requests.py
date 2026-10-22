@@ -129,7 +129,7 @@ def test_non_admin_cannot_delete(
     denied = client.delete(f"/api/requests/{created['id']}", headers=member_headers)
 
     assert denied.status_code == 403
-    assert client.get(f"/api/requests/{created['id']}", headers=member_headers).status_code == 200
+    assert client.get(f"/api/requests/{created['id']}", headers=auth_headers).status_code == 200
 
 
 def test_non_admin_can_create_and_update(client: TestClient, member_headers: Headers) -> None:
@@ -140,3 +140,36 @@ def test_non_admin_can_create_and_update(client: TestClient, member_headers: Hea
     )
 
     assert response.status_code == 200
+
+
+def test_member_sees_only_own_requests(
+    client: TestClient, auth_headers: Headers, member_headers: Headers
+) -> None:
+    admin_request = _create(client, auth_headers, client_name="Admin Owned Co")
+    own = _create(client, member_headers, client_name="Member Owned Co")
+
+    listing = client.get("/api/requests", headers=member_headers).json()
+
+    assert [item["id"] for item in listing["items"]] == [own["id"]]
+    assert listing["total"] == 1
+    assert admin_request["id"] not in [item["id"] for item in listing["items"]]
+
+
+def test_member_cannot_read_update_or_delete_others_request(
+    client: TestClient, auth_headers: Headers, member_headers: Headers
+) -> None:
+    theirs = _create(client, auth_headers)
+    url = f"/api/requests/{theirs['id']}"
+
+    assert client.get(url, headers=member_headers).status_code == 404
+    assert client.patch(url, json={"status": "completed"}, headers=member_headers).status_code == 404
+    assert client.get(url, headers=auth_headers).json()["status"] == "new"
+
+
+def test_admin_sees_every_request(
+    client: TestClient, auth_headers: Headers, member_headers: Headers
+) -> None:
+    _create(client, auth_headers)
+    _create(client, member_headers)
+
+    assert client.get("/api/requests", headers=auth_headers).json()["total"] == 2

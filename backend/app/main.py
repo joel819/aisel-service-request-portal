@@ -5,12 +5,22 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app.config import get_settings
-from app.routers import auth, requests
+from app.routers import assistant, auth, requests
 
 logger = logging.getLogger("app")
 
 
+def configure_logging() -> None:
+    """uvicorn only configures its own loggers; without this the app's INFO logs are dropped."""
+    if not logger.handlers:
+        handler = logging.StreamHandler()
+        handler.setFormatter(logging.Formatter("%(levelname)s [%(name)s] %(message)s"))
+        logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
+
+
 def create_app() -> FastAPI:
+    configure_logging()
     app = FastAPI(title="Service Request & Project Intake Portal")
     app.add_middleware(
         CORSMiddleware,
@@ -20,6 +30,7 @@ def create_app() -> FastAPI:
     )
     app.include_router(auth.router)
     app.include_router(requests.router)
+    app.include_router(assistant.router)
 
     @app.get("/api/health", tags=["health"])
     def health() -> dict[str, str]:

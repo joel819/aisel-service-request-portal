@@ -81,3 +81,7 @@ class ServiceRequestPage(BaseModel):
     total: int
     page: int
     page_size: int
+
+
+class AskRequest(BaseModel):
+    question: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=1000)]

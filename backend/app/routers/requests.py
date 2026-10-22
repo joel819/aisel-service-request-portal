@@ -20,8 +20,8 @@ router = APIRouter(
 )
 
 
-def _get_or_404(db: Session, request_id: int) -> ServiceRequest:
-    request = request_service.get_request(db, request_id)
+def _get_or_404(db: Session, viewer: User, request_id: int) -> ServiceRequest:
+    request = request_service.get_request(db, viewer, request_id)
     if request is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Service request not found")
     return request
@@ -36,9 +36,10 @@ def list_requests(
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ) -> ServiceRequestPage:
     filters = RequestFilters(q=q, status=status_, priority=priority, service_type=service_type)
-    items, total = request_service.list_requests(db, filters, page, page_size)
+    items, total = request_service.list_requests(db, current_user, filters, page, page_size)
     return ServiceRequestPage(
         items=[ServiceRequestOut.model_validate(i) for i in items],
         total=total,
@@ -57,8 +58,12 @@ def create_request(
 
 
 @router.get("/{request_id}", response_model=ServiceRequestOut)
-def read_request(request_id: int, db: Session = Depends(get_db)) -> ServiceRequest:
-    return _get_or_404(db, request_id)
+def read_request(
+    request_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> ServiceRequest:
+    return _get_or_404(db, current_user, request_id)
 
 
 @router.patch("/{request_id}", response_model=ServiceRequestOut)
@@ -68,7 +73,7 @@ def update_request(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> ServiceRequest:
-    request = _get_or_404(db, request_id)
+    request = _get_or_404(db, current_user, request_id)
     return request_service.update_request(db, request, payload, current_user.id)
 
 
@@ -78,5 +83,5 @@ def delete_request(
     db: Session = Depends(get_db),
     admin: User = Depends(require_admin),
 ) -> Response:
-    request_service.delete_request(db, _get_or_404(db, request_id), admin.id)
+    request_service.delete_request(db, _get_or_404(db, admin, request_id), admin.id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)

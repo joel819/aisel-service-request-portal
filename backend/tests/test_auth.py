@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import jwt
 import pytest
@@ -46,7 +46,7 @@ def test_requests_with_invalid_token_returns_401(client: TestClient) -> None:
 
 def test_requests_with_expired_token_returns_401(client: TestClient, user: User) -> None:
     expired = jwt.encode(
-        {"sub": str(user.id), "exp": datetime.now(timezone.utc) - timedelta(minutes=1)},
+        {"sub": str(user.id), "exp": datetime.now(UTC) - timedelta(minutes=1)},
         get_settings().jwt_secret,
         "HS256",
     )

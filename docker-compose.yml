@@ -23,6 +23,14 @@ services:
       CORS_ORIGINS: ${CORS_ORIGINS}
       SEED_USER_EMAIL: ${SEED_USER_EMAIL}
       SEED_USER_PASSWORD: ${SEED_USER_PASSWORD}
+      LLM_PROVIDER: ${LLM_PROVIDER:-mock}
+      LLM_BASE_URL: ${LLM_BASE_URL:-}
+      LLM_API_KEY: ${LLM_API_KEY:-}
+      LLM_MODEL: ${LLM_MODEL:-}
+      LLM_PRICE_IN: ${LLM_PRICE_IN:-}
+      LLM_PRICE_CACHED: ${LLM_PRICE_CACHED:-}
+      LLM_PRICE_OUT: ${LLM_PRICE_OUT:-}
+      LLM_TIMEOUT_S: ${LLM_TIMEOUT_S:-30}
     depends_on:
       db:
         condition: service_healthy

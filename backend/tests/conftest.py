@@ -2,18 +2,18 @@ import os
 from collections.abc import Iterator
 
 import pytest
-from alembic import command
 from alembic.config import Config
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Engine, make_url
 from sqlalchemy.orm import Session, sessionmaker
 
+from alembic import command
 from app.database import Base, get_db
 from app.main import app
 from app.models import Role, User
-from app.services.rate_limit import login_limiter
 from app.security import create_access_token, hash_password
+from app.services.rate_limit import assistant_limiter, login_limiter
 
 TEST_EMAIL = "tester@example.com"
 TEST_PASSWORD = "test-password-123"
@@ -43,6 +43,8 @@ def _reset_schema_and_migrate(engine: Engine, url: str) -> None:
 @pytest.fixture(scope="session")
 def engine() -> Iterator[Engine]:
     url = os.environ["TEST_DATABASE_URL"]
+    if not (make_url(url).database or "").endswith("_test"):
+        pytest.exit("TEST_DATABASE_URL must point at a database whose name ends in _test", returncode=2)
     _create_database_if_missing(url)
     test_engine = create_engine(url)
     _reset_schema_and_migrate(test_engine, url)
@@ -60,8 +62,9 @@ def db(engine: Engine) -> Iterator[Session]:
 
 
 @pytest.fixture(autouse=True)
-def reset_login_limiter() -> None:
+def reset_limiters() -> None:
     login_limiter.reset()
+    assistant_limiter.reset()
 
 
 @pytest.fixture
@@ -79,12 +82,17 @@ def user(db: Session) -> User:
 
 
 @pytest.fixture
-def member_headers(db: Session) -> dict[str, str]:
-    member = User(
+def member(db: Session) -> User:
+    other = User(
         email="member@example.com", hashed_password=hash_password(TEST_PASSWORD), role=Role.user
     )
-    db.add(member)
+    db.add(other)
     db.commit()
+    return other
+
+
+@pytest.fixture
+def member_headers(member: User) -> dict[str, str]:
     return {"Authorization": f"Bearer {create_access_token(member.id)}"}
 
 

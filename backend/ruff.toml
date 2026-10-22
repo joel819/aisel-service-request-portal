@@ -1,0 +1,8 @@
+line-length = 120
+target-version = "py312"
+
+[lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+# B008: FastAPI is written with Depends()/Query() in argument defaults.
+# UP042: the str + Enum classes are kept as they are to avoid changing enum behaviour.
+ignore = ["B008", "UP042"]
