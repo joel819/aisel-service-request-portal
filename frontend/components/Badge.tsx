@@ -1,29 +1,22 @@
 import { label, type Priority, type Status } from "@/lib/types";
 
 const PRIORITY_STYLES: Record<Priority, string> = {
-  low: "bg-slate-100 text-slate-700",
-  medium: "bg-blue-100 text-blue-700",
-  high: "bg-orange-100 text-orange-700",
-  critical: "bg-red-100 text-red-700",
+  low: "bg-fog",
+  medium: "bg-sky",
+  high: "bg-amber",
+  critical: "bg-flame",
 };
 
 const STATUS_STYLES: Record<Status, string> = {
-  new: "bg-sky-100 text-sky-700",
-  in_review: "bg-purple-100 text-purple-700",
-  in_progress: "bg-amber-100 text-amber-700",
-  completed: "bg-green-100 text-green-700",
-  cancelled: "bg-slate-100 text-slate-600",
+  new: "bg-lilac",
+  in_review: "bg-sky",
+  in_progress: "bg-sun",
+  completed: "bg-mint",
+  cancelled: "bg-fog",
 };
 
 function Pill({ className, children }: { className: string; children: string }) {
-  return (
-    <span
-      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium ${className}`}
-    >
-      <span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />
-      {children}
-    </span>
-  );
+  return <span className={`chip ${className}`}>{children}</span>;
 }
 
 export function PriorityBadge({ priority }: { priority: Priority }) {

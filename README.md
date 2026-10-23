@@ -6,6 +6,14 @@ A small web app for authenticated team members to record and manage client servi
 create, search and filter, change status and priority, edit, and delete. It consists of a FastAPI
 backend, a PostgreSQL database and a Next.js frontend, all started with one `docker compose` command.
 
+## Screenshots
+
+A normal user (not an admin) asks the assistant three questions. Their own urgent requests are found, request
+#1 (owned by an admin) comes back as "Request not found", and request #8 (their own) is summarised. The green
+chips show which read-only tool ran, and the "Who sees what" panel shows the access rule that applies.
+
+![Assistant page: a chat where the user's own requests are listed, another user's request is refused, and their own request is summarised](docs/screenshots/assistant.png)
+
 ## Architecture
 
 ```

@@ -76,8 +76,8 @@ export default function RequestsPage() {
     <div>
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold">Service requests</h1>
-          <p className="text-sm text-slate-500">Track and update client work in one place</p>
+          <h1 className="font-serif text-3xl font-bold">Service requests</h1>
+          <p className="text-sm text-ink/65">Track and update client work in one place</p>
         </div>
         <Link href="/requests/new" className="btn-primary">
           New request
@@ -122,13 +122,13 @@ export default function RequestsPage() {
           {data.total === 0 && !hasFilters ? (
             <EmptyState />
           ) : data.total === 0 ? (
-            <p className="py-12 text-center text-slate-600">No requests match your filters.</p>
+            <p className="py-12 text-center text-ink/75">No requests match your filters.</p>
           ) : (
             <div className={loading ? "opacity-60" : undefined}>
               <RequestTable items={data.items} />
               <RequestCards items={data.items} />
               <div className="mt-4 flex items-center justify-between text-sm">
-                <span className="text-slate-600">
+                <span className="text-ink/75">
                   Page {data.page} of {totalPages} · {data.total} total
                 </span>
                 <div className="flex gap-2">
@@ -190,21 +190,21 @@ function RequestTable({ items }: { items: ServiceRequest[] }) {
   return (
     <div className="card hidden overflow-hidden md:block">
       <table className="w-full text-left text-sm">
-        <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+        <thead className="bg-cream text-xs uppercase tracking-wide text-ink/65">
           <tr>
-            <th className="px-4 py-3 font-medium">Reference</th>
-            <th className="px-4 py-3 font-medium">Client</th>
-            <th className="px-4 py-3 font-medium">Service type</th>
-            <th className="px-4 py-3 font-medium">Priority</th>
-            <th className="px-4 py-3 font-medium">Status</th>
-            <th className="px-4 py-3 font-medium">Updated</th>
+            <th className="px-4 py-3 font-bold">Reference</th>
+            <th className="px-4 py-3 font-bold">Client</th>
+            <th className="px-4 py-3 font-bold">Service type</th>
+            <th className="px-4 py-3 font-bold">Priority</th>
+            <th className="px-4 py-3 font-bold">Status</th>
+            <th className="px-4 py-3 font-bold">Updated</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-100">
+        <tbody className="divide-y-2 divide-ink/10">
           {items.map((r) => (
-            <tr key={r.id} className="transition hover:bg-indigo-50/40">
+            <tr key={r.id} className="transition hover:bg-sun/25">
               <td className="px-4 py-3">
-                <Link href={`/requests/${r.id}/edit`} className="font-medium text-indigo-600 hover:underline">
+                <Link href={`/requests/${r.id}/edit`} className="font-bold underline decoration-lilac decoration-2 underline-offset-2">
                   {r.reference}
                 </Link>
               </td>
@@ -216,7 +216,7 @@ function RequestTable({ items }: { items: ServiceRequest[] }) {
               <td className="px-4 py-3">
                 <StatusBadge status={r.status} />
               </td>
-              <td className="px-4 py-3 text-slate-600">{formatDate(r.updated_at)}</td>
+              <td className="px-4 py-3 text-ink/75">{formatDate(r.updated_at)}</td>
             </tr>
           ))}
         </tbody>
@@ -232,14 +232,14 @@ function RequestCards({ items }: { items: ServiceRequest[] }) {
         <li key={r.id}>
           <Link
             href={`/requests/${r.id}/edit`}
-            className="card block p-4 transition hover:border-indigo-300"
+            className="card block p-4 transition hover:bg-lilac/30"
           >
             <div className="flex items-center justify-between">
-              <span className="font-medium text-indigo-600">{r.reference}</span>
-              <span className="text-xs text-slate-500">{formatDate(r.updated_at)}</span>
+              <span className="font-bold underline decoration-lilac decoration-2 underline-offset-2">{r.reference}</span>
+              <span className="text-xs text-ink/65">{formatDate(r.updated_at)}</span>
             </div>
-            <p className="mt-1 font-medium">{r.client_name}</p>
-            <p className="text-sm text-slate-600">{label(r.service_type)}</p>
+            <p className="mt-1 font-bold">{r.client_name}</p>
+            <p className="text-sm text-ink/75">{label(r.service_type)}</p>
             <div className="mt-2 flex gap-2">
               <PriorityBadge priority={r.priority} />
               <StatusBadge status={r.status} />

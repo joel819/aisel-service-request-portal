@@ -124,7 +124,7 @@ export function RequestForm({ initial = EMPTY, showPriority = false, submitLabel
         />
       </Field>
       {submitError && (
-        <p role="alert" className="text-sm text-red-600">
+        <p role="alert" className="text-sm text-[#b3261e] font-bold">
           {submitError}
         </p>
       )}
@@ -146,9 +146,9 @@ function Field({
 }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-sm font-medium text-slate-700">{text}</span>
+      <span className="mb-1 block text-sm font-bold text-ink">{text}</span>
       {children}
-      {error && <span className="mt-1 block text-sm text-red-600">{error}</span>}
+      {error && <span className="mt-1 block text-sm text-[#b3261e] font-bold">{error}</span>}
     </label>
   );
 }

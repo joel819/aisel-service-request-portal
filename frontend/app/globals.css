@@ -4,21 +4,27 @@
 
 @layer components {
   .input {
-    @apply w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100;
+    @apply w-full rounded-xl border-2 border-ink bg-white px-3 py-2 text-sm text-ink transition focus:bg-paper focus:shadow-hard-sm focus:outline-none;
   }
   .btn {
-    @apply inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-50;
+    @apply inline-flex items-center justify-center rounded-xl border-2 border-ink px-4 py-2 text-sm font-bold text-ink shadow-hard-sm transition hover:-translate-y-px active:translate-x-px active:translate-y-px active:shadow-none disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none disabled:hover:translate-y-0;
   }
   .btn-primary {
-    @apply btn bg-indigo-600 text-white shadow-sm hover:bg-indigo-700;
+    @apply btn bg-lilac hover:bg-[#b39bff];
   }
   .btn-secondary {
-    @apply btn border border-slate-300 bg-white text-slate-700 hover:bg-slate-50;
+    @apply btn bg-white hover:bg-cream;
   }
   .btn-danger {
-    @apply btn bg-red-600 text-white shadow-sm hover:bg-red-700;
+    @apply btn bg-flame hover:bg-[#ff5a2a];
   }
   .card {
-    @apply rounded-xl border border-slate-200 bg-white shadow-sm;
+    @apply rounded-2xl border-2 border-ink bg-paper shadow-hard;
+  }
+  .chip {
+    @apply inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border-2 border-ink px-2.5 py-0.5 text-xs font-bold text-ink;
+  }
+  .label-caps {
+    @apply text-xs font-bold uppercase tracking-wider text-ink;
   }
 }

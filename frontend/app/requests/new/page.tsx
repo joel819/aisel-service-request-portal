@@ -17,10 +17,10 @@ export default function NewRequestPage() {
 
   return (
     <div className="mx-auto max-w-2xl">
-      <Link href="/requests" className="text-sm text-slate-600 hover:underline">
+      <Link href="/requests" className="text-sm text-ink/75 underline decoration-2 underline-offset-2">
         &larr; Back to requests
       </Link>
-      <h1 className="mb-4 mt-2 text-xl font-semibold">New service request</h1>
+      <h1 className="mb-4 mt-2 font-serif text-2xl font-bold">New service request</h1>
       <div className="card p-6">
         <RequestForm showPriority submitLabel="Create request" onSubmit={create} />
       </div>

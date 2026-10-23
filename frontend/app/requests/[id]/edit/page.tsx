@@ -79,18 +79,18 @@ export default function EditRequestPage() {
 
   return (
     <div className="mx-auto max-w-2xl">
-      <Link href="/requests" className="text-sm text-slate-600 hover:underline">
+      <Link href="/requests" className="text-sm text-ink/75 underline decoration-2 underline-offset-2">
         &larr; Back to requests
       </Link>
       <div className="mb-4 mt-2 flex flex-wrap items-center gap-2">
-        <h1 className="text-xl font-semibold">{request.reference}</h1>
+        <h1 className="font-serif text-2xl font-bold">{request.reference}</h1>
         <PriorityBadge priority={request.priority} />
         <StatusBadge status={request.status} />
       </div>
 
       <div className="mb-4 grid grid-cols-1 gap-3 card p-4 sm:grid-cols-2">
         <label className="block text-sm">
-          <span className="mb-1 block font-medium text-slate-700">Status</span>
+          <span className="mb-1 block font-bold text-ink">Status</span>
           <select
             className="input"
             value={request.status}
@@ -104,7 +104,7 @@ export default function EditRequestPage() {
           </select>
         </label>
         <label className="block text-sm">
-          <span className="mb-1 block font-medium text-slate-700">Priority</span>
+          <span className="mb-1 block font-bold text-ink">Priority</span>
           <select
             className="input"
             value={request.priority}
@@ -120,7 +120,7 @@ export default function EditRequestPage() {
       </div>
 
       {notice && (
-        <p role="status" className="mb-4 text-sm text-slate-700">
+        <p role="status" className="mb-4 text-sm text-ink">
           {notice}
         </p>
       )}
@@ -134,7 +134,7 @@ export default function EditRequestPage() {
       </div>
 
       {isAdmin && (
-        <div className="mt-6 rounded-xl border border-red-200 bg-white p-4">
+        <div className="mt-6 card bg-blush/50 p-4">
           {confirmingDelete ? (
             <div className="flex flex-wrap items-center gap-3">
               <span className="text-sm">Delete {request.reference} permanently?</span>

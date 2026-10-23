@@ -3,7 +3,7 @@
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { BrandMark } from "@/components/Header";
+import { BrandMark, BrandTitle } from "@/components/Header";
 import { api, setToken } from "@/lib/api";
 
 interface LoginResponse {
@@ -38,13 +38,15 @@ export default function LoginPage() {
   return (
     <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center px-4">
       <div className="mb-6 flex flex-col items-center text-center">
-        <BrandMark />
-        <h1 className="mt-4 text-2xl font-semibold">Sign in</h1>
-        <p className="mt-1 text-sm text-slate-500">Manage client service requests</p>
+        <BrandMark size="h-12 w-12" />
+        <h1 className="mt-4 font-serif text-3xl font-bold">
+          <BrandTitle className="text-3xl" />
+        </h1>
+        <p className="mt-1 text-sm text-ink/65">Sign in to manage client service requests</p>
       </div>
       <form onSubmit={handleSubmit} className="card space-y-4 p-6">
         <label className="block">
-          <span className="mb-1 block text-sm font-medium text-slate-700">Email</span>
+          <span className="mb-1 block text-sm font-bold text-ink">Email</span>
           <input
             type="email"
             required
@@ -55,7 +57,7 @@ export default function LoginPage() {
           />
         </label>
         <label className="block">
-          <span className="mb-1 block text-sm font-medium text-slate-700">Password</span>
+          <span className="mb-1 block text-sm font-bold text-ink">Password</span>
           <input
             type="password"
             required
@@ -66,7 +68,7 @@ export default function LoginPage() {
           />
         </label>
         {error && (
-          <p role="alert" className="text-sm text-red-600">
+          <p role="alert" className="text-sm text-[#b3261e] font-bold">
             {error}
           </p>
         )}
